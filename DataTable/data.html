@@ -1,0 +1,76 @@
+<html>
+<script defer>
+    let str = '';
+    function __(v) {
+        try {
+            str += v;
+        } catch (e) {
+            console.error('Failed to parse', e, v)
+        }
+    }
+    function Atable(headings, body) {
+        if (!body.length) {
+            return '[]'
+        }
+        let showHeadings = true;
+        if (typeof body[0] !== 'object') {
+            showHeadings = false;
+        }
+        return `<table border=1>
+    ${showHeadings ? `<thead><tr>${headings.map(c => `<td style="font-weight: 600;">${c}</td>`)}</tr></thead>` : ''}
+    <tbody>
+    ${body.map((c) => `<tr>${typeof headings === 'string' ? `<td>${c}</td>` : headings?.map(h => `<td>${Array.isArray(c[h]) ? Atable(Object.keys(c[h]?.[0] || []), c[h]) :
+            typeof c[h] === 'object' && c[h] != null
+                ? Otable(c[h])
+                : (c[h] || '""')}
+    </td>`)}</tr>`)}
+    </tbody>
+    </table>`
+    }
+    function Otable(obj) {
+        return `<table border=1>
+    <tbody>
+    ${Object.keys(obj).map((c) => `<tr><td style="font-weight: 600;">${c}</td><td>${Array.isArray(obj[c]) ? Atable(typeof obj[c]?.[0] == 'object' ? Object.keys(obj[c]?.[0] || []) : obj[c]?.[0], obj[c]) :
+            typeof obj[c] === 'object' && obj[c] != null
+                ? Otable(obj[c])
+                : (obj[c] || '""')}</td></tr>`)}
+    </tbody>
+    </table>`
+    }
+    const click = () => {
+        str = '';
+        let data = '';
+        const d = document.getElementById('data-table').value;
+        const root = document.getElementById('root');
+        try {
+            data = JSON.parse(d);
+            console.log(Array.isArray(data), typeof data)
+
+            __(Array.isArray(data) ? Atable((typeof data?.[0] == 'object' ? Object.keys(data[0]) : data[0]) || [], data) : typeof data === 'object' ? Otable(data) : data || '""');
+        } catch (e) {
+            __('<h3>Failed to Parse</h3>', e)
+            console.error('Failed to parse', e)
+        }
+        root.innerHTML = str;
+        // __(Otable(c))
+    }
+    document.addEventListener('DOMContentLoaded', (event) => {
+        document.title = 'Update';
+
+        document.getElementById('generate').addEventListener('click', click)
+        document.getElementById('data-table').addEventListener('keydown', (e) => {
+            if (e.code === 'Enter') {
+                click();
+            }
+        })
+    })
+
+</script>
+
+<body>
+    <div><textarea id='data-table' style="width: 80%; height: 100px;"></textarea></div>
+    <button id='generate'>GenerateTable</button>
+    <div id='root'></div>
+</body>
+
+</html>
