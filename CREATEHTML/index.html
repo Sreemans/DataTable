@@ -1,0 +1,61 @@
+<head>
+    <script src="./index.js"></script>
+    <!-- <script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script> -->
+</head>
+<style>
+    #popup {
+        display: none;
+        position: absolute;
+        top: 25%;
+        left: 30%;
+        height: 300px;
+        width: 400px;
+        background-color: #d8f3ed;
+    }
+/* *{
+    outline: auto;
+} */
+    .popupHeading {
+        text-align: center;
+        margin: 5px;
+        background: white;
+        padding: 5px;
+        
+    }
+
+    #menu {
+        display: hidden;
+        position: absolute;
+        min-height: 150px;
+        width: 100px;
+        background-color: #fffbf5;
+        color: #251b1b;
+        box-shadow: 1px 1px 3px 0px;
+        min-height: 150px;
+    }
+
+    .custom-dt {
+        background-color: chocolate;
+    }
+
+    .opts {
+        padding: 3px;
+        cursor: pointer;
+        margin: 2px;
+    }
+</style>
+
+<body>
+    <div style="position: relative;">
+        <h3>HTML</h3>
+        <div id='root' style="outline: auto; height: 100vh;"></div>
+        <div id='menu'></div>
+        <div id='popup'>
+            <div style="display: flex;">
+                <h3 class='popupHeading' style="flex: 1;">Add Element</h3>
+                <div class='popupHeading' id='close-icon' style="cursor: pointer;"> X </div>
+            </div>
+            <div id='popupBody'></div>
+        </div>
+    </div>
+</body>
