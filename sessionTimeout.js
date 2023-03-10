@@ -1,8 +1,9 @@
+let window;
 function useSessionTimeOut(callBack, time = 5) {
     let isTimedOut = false;
     let timeoutId = null;
     let lastEventTime = new Date();
-    if (document) {
+    if (window?.document) {
         document.onmouseup = function (event) {
             lastEventTime = new Date();
         }
@@ -28,7 +29,6 @@ function useSessionTimeOut(callBack, time = 5) {
             };
         }
     }, 5000)
-    log('Session Started');
     return {
         getLastEventTime: () => lastEventTime,
         getIsTimedOut: () => isTimedOut,
@@ -36,4 +36,4 @@ function useSessionTimeOut(callBack, time = 5) {
     }
 }
 
-console.log(useSessionTimeOut())
+const session = useSessionTimeOut();
