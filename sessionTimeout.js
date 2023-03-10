@@ -7,8 +7,19 @@ function useSessionTimeOut(callBack, time = 5) {
             lastEventTime = new Date();
         }
     }
+    const getTimeDiff = (key = 'mins') => {
+        let diffMs = (lastEventTime - new Date());
+        switch (key) {
+            case 'days':
+                return Math.floor(diffMs / 86400000);
+            case 'hours':
+                return Math.floor((diffMs % 86400000) / 3600000);
+            case 'mins':
+                return Math.round(((diffMs % 86400000) % 3600000) / 60000);
+        }
+    }
     timeoutId = setInterval(() => {
-        if ((new Date().getMinutes() - lastEventTime.getMinutes()) == time) {
+        if (getTimeDiff() == time) {
             isTimedOut = true;
             clearInterval(timeoutId);
             if (callBack) {
@@ -17,11 +28,12 @@ function useSessionTimeOut(callBack, time = 5) {
             };
         }
     }, 5000)
+    log('Session Started');
     return {
         getLastEventTime: () => lastEventTime,
         getIsTimedOut: () => isTimedOut,
-        killSession: ()=> clearInterval(timeoutId)
+        killSession: function () { clearInterval(timeoutId) }
     }
 }
 
-// store session details in static class i.e, you can access the session utils all over the project
+console.log(useSessionTimeOut())
