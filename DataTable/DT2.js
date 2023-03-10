@@ -4,11 +4,15 @@ window.onpopstate = function () {
     window.history.pushState(null, "", window.location.href);
 };
 let getLogger = true;
+/**
+ * @type {{ getLastEventTime: () => Date, getIsTimedOut: () => boolean}}
+ */
 let sessionDetails = null;
-const log = (...v) => { getLogger && console.log(...v) }
-const warn = (...v) => { getLogger && console.warn(...v) }
-const error = (...v) => { getLogger && console.error(...v) }
-const info = (...v) => { getLogger && console.info(...v) }
+const log = (...v) => { getLogger && console.log(...v) };
+const warn = (...v) => { getLogger && console.warn(...v) };
+const error = (...v) => { getLogger && console.error(...v) };
+const info = (...v) => { getLogger && console.info(...v) };
+const table = (...v) => { getLogger && console.table(...v) };
 const mockValue = `[
     {
         "id": "0001",
@@ -102,7 +106,7 @@ const TYPES = {
     isBoolean: (v) => typeof v === TYPES.BOOLEAN,
     isObject: (v) => typeof v === TYPES.OBJECT,
     isNotObject: (v) => !TYPES.isObject(v)
-}
+};
 let menuPath = null;
 var notOnBoxListener = function (event) {
     const ids = [event.target.id, event.target.parentElement?.id];
@@ -166,13 +170,14 @@ function getTrace(e, searchKey = 'td') {
     }
 
     trace.key = trace.key.replaceAll('].[', '][').replaceAll('-', '.').replaceAll('.[', '[');
-    if (searchKey == 'td') {
-        warn(eval(trace.key))
-    } else if (searchKey == 'th') {
+    // if (searchKey == 'td') {
+    //     warn(eval(trace.key))
+    // } else 
+    if (searchKey == 'th') {
         trace.sortKey = trace.key.slice(trace.key.lastIndexOf('.') + 1);
         trace.sortPath = trace.key.slice(0, trace.key.lastIndexOf('.'));
     }
-    log(trace)
+    table(trace)
     return trace;
 
 }
@@ -238,17 +243,45 @@ const menuOpts = [
         ]
     }
 ];
+function useSessionTimeOut(callBack, time = 5) {
+    let isTimedOut = false;
+    let timeoutId = null;
+    let lastEventTime = new Date();
+    if (document) {
+        document.onmouseup = function (event) {
+            lastEventTime = new Date();
+        }
+    }
+    timeoutId = setInterval(() => {
+        if ((new Date().getMinutes() - lastEventTime.getMinutes()) == time) {
+            isTimedOut = true;
+            clearInterval(timeoutId);
+            if (callBack) {
+                callBack();
+                return null;
+            };
+        }
+    }, 5000)
+    log('Session Started');
+    return {
+        getLastEventTime: () => lastEventTime,
+        getIsTimedOut: () => isTimedOut,
+        killSession: function () { clearInterval(timeoutId) }
+    }
+}
 /**
  * 
  * @param {Event} event 
  */
 window.onload = (event) => {
+
+
     document.title = 'U are Awesome';
-    if(getLogger){
+    if (getLogger) {
         document.getElementById('loggers').checked = true
     }
-    document.getElementById('data-table').value = mockValue;
-    click()
+    // document.getElementById('data-table').value = mockValue;
+    // click()
     document.getElementById('generate').addEventListener('click', () => {
         attempt = 1;
         click();
@@ -263,32 +296,6 @@ window.onload = (event) => {
             click();
         }
     })
-    function useSessionTimeOut(callBack, time = 5) {
-        let isTimedOut = false;
-        let timeoutId = null;
-        let lastEventTime = new Date();
-        const getIsTimedOut = () => {
-            return isTimedOut
-        }
-        if (document) {
-            document.onmouseup = function (event) {
-                log(event)
-                lastEventTime = new Date();
-            }
-        }
-        timeoutId = setInterval(() => {
-            if ((new Date().getMinutes() - lastEventTime.getMinutes()) == time) {
-                if (callBack) {
-                    log('Executing Callback');
-                    callBack();
-                };
-                isTimedOut = true;
-                clearInterval(timeoutId);
-            }
-        }, 5000)
-        log('Session Started');
-        return { getLastEventTime: () => lastEventTime, getIsTimedOut }
-    }
     sessionDetails = useSessionTimeOut(() => {
         render('<h1>logout</h1>')
     });
@@ -297,7 +304,7 @@ window.addEventListener('contextmenu', /**
 * @param {MouseEvent} e
 */
     (e) => {
-        log(sessionDetails)
+        // log(sessionDetails)
         if (['TD'].includes(e.path[0].tagName)) {
 
             e.preventDefault()
@@ -327,6 +334,9 @@ window.addEventListener('contextmenu', /**
     })
 
 function click() {
+    if (sessionDetails?.getIsTimedOut()) {
+        sessionDetails = useSessionTimeOut()
+    }
     str = '';
     let d = document.getElementById('data-table').value;
     info('received');
