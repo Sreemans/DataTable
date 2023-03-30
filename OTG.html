@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OTG Links</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"
+        integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 5px grey;
+            border-radius: 10px;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: grey;
+            border-radius: 10px;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b30000;
+        }
+
+        * {
+            text-align: center;
+            font-family: system-ui, monospace;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        #links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .one {
+            background-color: #d9dde1;
+            margin: 5px 0;
+        }
+
+        #searchLinks {
+            display: flex;
+            gap: 1pc;
+            flex-wrap: wrap;
+            flex-direction: column;
+            align-content: center;
+        }
+
+        #linkSearch {
+            text-align: center;
+            left: 0;
+            position: sticky;
+            top: 0;
+        }
+
+        .two {
+            background-color: #d7d0d8;
+            margin: 5px 0;
+        }
+    </style>
+    <script defer>
+        Date.prototype.getWeek = function () {
+            var date = new Date(this.getTime());
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            var week1 = new Date(date.getFullYear(), 0, 4);
+            return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                - 3 + (week1.getDay() + 6) % 7) / 7);
+        }
+        // var
+        const getFocus = () => {
+            document.getElementById('linkSearch').focus()
+        }
+        let weekNumber = new Date().getWeek();
+        const links = [
+            {
+                "name": "Translations",
+                "link": "http://wfn-translations.us.caas.oneadp.com/"
+            },
+            {
+                "name": "WFN Source Browser",
+                "link": "http://wfnsourcebrowse.es.ad.adp.com/source/"
+            },
+            {
+                "name": "OTG Login Proxy",
+                "link": "https://wfn-fit.nj.adp.com/mascsr/otg/api/proxy"
+            },
+            {
+                "name": "UI Webserver Build",
+                "link": "http://cdldvwfnvci0001.es.ad.adp.com:8080/view/All/"
+            },
+            {
+                "name": "FIT/DIT HF's",
+                "link": "https://ci.wfn.dit.paascloud.oneadp.com/"
+            },
+            {
+                "name": "Build URL'S",
+                "link": "https://ci.workforcenow.us.caas.oneadp.com/"
+            },
+            {
+                "name": "SRE",
+                "link": "https://jira.service.tools-pi.com/plugins/servlet/desk/portal/16"
+            },
+            {
+                "name": "2.0",
+                "link": "http://localhost:4200/mascsr/mdf/wfn-otg-ui/index.html"
+            },
+            {
+                "name": "1.0",
+                "link": "http://localhost:8080/mascsr/otg/ui/testharness.html"
+            },
+            {
+                "name": "reports Local",
+                "link": "http://localhost:8080/mascsr/otg/ui/reports/"
+            },
+            {
+                name: 'Kubernates',
+                link: 'https://confluence.es.ad.adp.com/display/MRD/Kubernetes+Dashboard+-+ICP'
+            },
+            {
+                name: 'Login Details',
+                link: 'https://confluence.es.ad.adp.com/display/WFNCA/Upgrade+Login+Details'
+            },
+            {
+                name: 'New Hire Links',
+                link: 'http://10.204.252.53/wfn/mobility/rest/events/hr/v1/worker.hire'
+            },
+            {
+                name: 'IKARE',
+                link: 'https://ikareng.es.ad.adp.com/dashboard'
+            },
+            {
+                'name': 'PAYX',
+                link: 'http://cdlpayxwfndb25/cgi-bin/payxdb/payxdbserver.pl'
+            },
+            {
+                name: 'WFN Talent',
+                link: 'http://cdlmasdevops2:8080/job/WFN-Talent-wfn-init-web-core-23.10.00/'
+            },
+            {
+                name: 'CPS Defects',
+                link: 'https://jira.service.tools-pi.com/secure/Dashboard.jspa?selectPageId=42021'
+            }
+        ];
+        let debounce_fun = null;
+        const searchLinks = [];
+        var wait = (w) => new Promise((r) => setTimeout(() => r('Loading links'), w * 1000))
+        async function* start() {
+            yield 'starting app';
+            document.getElementById('links').innerHTML = 'Loading.';
+            yield wait(1 / 4);
+            document.getElementById('links').innerHTML = 'Loading..';
+            yield wait(1 / 4);
+            document.getElementById('links').innerHTML = 'Loading...';
+            yield wait(1 / 2);
+            yield (() => {
+                try {
+                    const linksHtml = [];
+                    links.map(({ name, link }) => linksHtml.push(`<div><span>${name}</span> : <span onclick="getFocus()"> <a target="_blanK" href='${link}'>${link}</a></span></div>`))
+                    document.getElementById('links').innerHTML = `${linksHtml.join('')}`;
+
+                    debounce_fun = (function () {
+                        const linksMap = new Map(links.map(({ name, link }) => ([name.trim().toLowerCase().replaceAll(' ', ''), link])));
+                        return (_.debounce((e) => {
+                            searchLinks.length = 0;
+                            if (e.target.value !== '') {
+                                [...linksMap.keys()].filter(c => c.includes(e.target.value)).forEach((c, i) => {
+                                    searchLinks.push(`<div class='${i % 2 == 0 ? 'two' : 'one'}'><span>${c}</span> : <span onclick="getFocus()"><a target="_blanK"  href='${linksMap.get(c)}'>${linksMap.get(c)}</a></span></div>`)
+                                })
+                            }
+                            document.getElementById('searchLinks').innerHTML = `${searchLinks.length ? searchLinks.join('') : e.target.value !== '' ? 'No Links Found' : ''}`;
+                        }, 500))
+                    })()
+                } catch (ee) {
+                    return ee.message
+                }
+                return 'load Complete'
+            })()
+            yield 'loaded'
+        }
+
+        const app = start();
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('weekNumber').innerHTML = 'Week Number: ' + weekNumber;
+            console.log((await app.next()).value)
+            console.log((await app.next()).value)
+            console.log((await app.next()).value)
+            console.log((await app.next()).value)
+            const main = await app.next();
+            if (main.value !== 'load Complete') {
+                app.throw('failed to load URLS')
+            }
+            console.log((await app.next()).value)
+        });
+
+    </script>
+</head>
+
+<body>
+    <div>
+        <label id="weekNumber"></label>
+        <div style="height: 20pc;overflow: auto;width: 45pc;margin: auto;">
+
+            <input type="search" id='linkSearch' autofocus placeholder="Search Links" oninput="debounce_fun(event)"
+                style="padding: 5px;
+            font-size: 20px;" />
+            <div id='searchLinks'>
+
+            </div>
+        </div>
+        <div id='links' style="border-top: 2px solid;">
+
+        </div>
+    </div>
+</body>
+
+</html>
